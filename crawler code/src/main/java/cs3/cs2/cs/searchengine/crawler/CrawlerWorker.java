@@ -61,8 +61,7 @@ public class CrawlerWorker implements Runnable {
         try {
             entry= new Entry(url);
             String contentString =hc.getContent();
-
-//        log.debug("id"+id+"\tUpDynamoing:\t" + url);   
+			// log.debug("id"+id+"\tUpDynamoing:\t" + url);   
             MessageDigest digest=null;
             try {
                 digest = MessageDigest.getInstance("SHA-256");
@@ -76,13 +75,14 @@ public class CrawlerWorker implements Runnable {
             dbWrapper.saveContentSeen(encoded);
             db.setContentLink(entry, contentString);
             anaylize(url,contentString);
-           if(db.add(entry)){
-            log.debug("id"+id+"\tDownloaded:\t" + url);                    
-           }else{
-            log.debug("id"+id+"\tFailededed:\t" + url);                                
-           }
-            Crawler.num.incrementAndGet();
-//        log.debug("id"+id+"\tUpDynamoDBed:\t" + url);        
+			if(db.add(entry)){
+				log.debug("id"+id+"\tDownloaded:\t" + url);               
+			}else{			   
+				log.debug("id"+id+"\tFailededed:\t" + url);                                
+			}
+			
+			Crawler.num.incrementAndGet();
+			//        log.debug("id"+id+"\tUpDynamoDBed:\t" + url);        
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -137,26 +137,9 @@ public class CrawlerWorker implements Runnable {
             }
             // if(url!=null)
             outLinksBuff.add(text);
-//            if(Crawler.urlToDo.size()>100){
-//                Crawler.urlToDo.poll();
-//            }
-//            Crawler.urlToDo.add(new URLEntry(url, toCrawlDate));
-            
-            // distribute url
-            // distributor.distributeURL(text);
             
         }
-        // try{
-		// 	String body = document.body().text();
-		// 	if (body.length() > bodyLength) {
-		// 		entry.setBodySample(body.substring(0, bodyLength));
-		// 	} else {
-		// 		entry.setBodySample(body);
-		// 	}
-		// 	entry.setTitle(document.title());
-		// } catch (NullPointerException e) {
-		// 	// body / title missed
-		// }
+
         entry.setOutLinks(outLinksBuff);
                 
         // if(!distributor.urlFrontierFull()){
@@ -234,74 +217,51 @@ public class CrawlerWorker implements Runnable {
         while (true) {//main loop
 //            URLEntry urlEntry = null;
             //take out one url
-        		try {
-            String urlString;
-			try {
-				urlString = frontier.getURL();
-			} catch (InterruptedException e2) {
-				continue;
-			}
-            URL urlCurrent;
-			try {
-				urlCurrent = new URL(urlString);
-			} catch (MalformedURLException e1) {
-				continue;
-			}
-            //Robot check
-            if (!checkRobot(urlCurrent)) {
-                log.debug("Not allowed: "+urlCurrent.toString());
-                continue;
-            }
+        	try {
+				String urlString;
+				try {
+					urlString = frontier.getURL();
+				} catch (InterruptedException e2) {
+					continue;
+				}
+				URL urlCurrent;
+				try {
+					urlCurrent = new URL(urlString);
+				} catch (MalformedURLException e1) {
+					continue;
+				}
+				//Robot check
+				if (!checkRobot(urlCurrent)) {
+					log.debug("Not allowed: "+urlCurrent.toString());
+					continue;
+				}
 
-            //send head to check if we need to do download();
-            try {
-                // Doc doc = docDB.get(urlString);
-                // filter.put(object);
-//                if (!Crawler.bl.put(urlString)) {
-                    //Doc has been seen
-                    // updateflag = true;
-                    // Long crawledDate = Utilities.convertDate(doc.getcrawledDate());
-                    // //send head to check 
-                    // HttpClient hc = new HttpClient();
-                    // if (!hc.send("HEAD",urlEntry)) {
-                    //     crawledNum--;
-                    //     continue;
-                    // }
-                    // if (hc.getLastModified() <= crawledDate) {
-                    //     System.out.println("not modified " + urlString);
-                    //     continue;
-                    // } else if (hc.getContentLength() > Crawler.maxFileSize || !typeValid(hc.getContentType())) {
-                    //     continue;
-                    // } else {
-                    //     download(urlEntry);
-                    // }
-//                } else {
-                    //Doc is NOT in the DB                    
-                    HttpClient hc = new HttpClient();
-                    if (!hc.send("HEAD", urlString)) {
-                        // crawledNum--;
-//                    		log.debug("id"+id+"\t remove after Head: " + urlString);
-                        continue;
-                    }
-                    if ((hc.getContentLength() < Crawler.maxFileSize) && typeValid(hc.getContentType())) {
-                        download(urlString);
-                    } else {
-                        continue;
-                    }
-//                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                continue;
-            }
+				//send head to check if we need to do download();
+				try {                   
+					HttpClient hc = new HttpClient();
+					if (!hc.send("HEAD", urlString)) {
+						// crawledNum--;
+					//                    		log.debug("id"+id+"\t remove after Head: " + urlString);
+						continue;
+					}
+					if ((hc.getContentLength() < Crawler.maxFileSize) && typeValid(hc.getContentType())) {
+						download(urlString);
+					} else {
+						continue;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					continue;
+				}
 
-            //after one loop check status 
-//            if (crawledNum <= 0) {
-//                flag = true;
-//            }
-        		} catch (Throwable e) {
-        			System.err.println("id"+id+"\t unhandled throwable:\t" + e.getMessage());
-        			e.printStackTrace();
-        		}
+				//after one loop check status 
+	//            if (crawledNum <= 0) {
+	//                flag = true;
+	//            }
+			} catch (Throwable e) {
+				System.err.println("id"+id+"\t unhandled throwable:\t" + e.getMessage());
+				e.printStackTrace();
+			}
         }
 
         // return ; //TODO: crawled number
