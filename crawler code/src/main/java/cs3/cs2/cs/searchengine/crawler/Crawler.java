@@ -30,6 +30,7 @@ import spark.Route;
 import spark.Spark;
 
 public class Crawler {
+
 	static Logger log = Logger.getLogger(Crawler.class);
 	// public static PriorityBlockingQueue<URLEntry> urlToDo;
 	public static Map<String, RobotsTxtInfo> robotLst;// TODO:concurrent handle
@@ -203,33 +204,7 @@ public class Crawler {
 		DBWrapper db = DBWrapper.getInstance();
 		db.setUp();
 
-		// parameter setup
-		// URL urlCurrent = null;
-		// try {
-		// urlCurrent = new URL(args[0]);
-		// } catch (MalformedURLException e1) {
-		// e1.printStackTrace();
-		// }
-		// String dbDirectory = args[1];
-		// maxFileSize = Integer.parseInt(args[2]) * 1024 * 1024;
-		// int maxFileNumber = 100;
-		// String hostname = "turingSearch.cis.cs2.edu";
-		// if (args.length > 3) {
-		// maxFileNumber = Integer.parseInt(args[3]);
-		// ;
-		// if (args.length > 4) {
-		// hostname = args[4];
-		// if (args.length > 5) {
-		// if (args[5].equals("1")) {
-		// try {// clean db
-		// FileUtils.cleanDirectory(new File(dbDirectory));
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
-		// }
-		// }
-		// }
-		// }
+
 
 		//
 		// initial environment
@@ -242,21 +217,7 @@ public class Crawler {
 				return size() > 200;
 			}
 		});
-		// urlToDo.add(new URLEntry(urlCurrent, System.currentTimeMillis()));
-		// DBWrapper dbWrapper = new DBWrapper(dbDirectory);
-		// crawledNum = maxFileNumber;
 
-		// // udp
-		// try {
-		// host = InetAddress.getByName(hostname);
-		// try {
-		// s = new DatagramSocket();
-		// } catch (SocketException e) {
-		// e.printStackTrace();
-		// }
-		// } catch (UnknownHostException e1) {
-		// e1.printStackTrace();
-		// }
 
 		Crawler crawler = new Crawler(index, workerList, seedURL,threadNum);
 
